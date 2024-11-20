@@ -7,11 +7,13 @@ Classification
 
 /* [wxMaxima: input   start ] */
 file_search_maxima:push(sconcat("C:/Users/Usuario/Downloads/datamining-main/","$$$.{mac,mc,wxm}"),file_search_maxima)$
+load(datamining)$
+load(descriptive)$
 /* [wxMaxima: input   end   ] */
 
 
 /* [wxMaxima: input   start ] */
-load(datamining)$
+simplify(ex) :=fullratsimp(ex)$
 /* [wxMaxima: input   end   ] */
 
 
@@ -213,8 +215,8 @@ block(
 /* [wxMaxima: comment start ]
 FOILGain(data, target, cjts) returns the FOIL gain from rule R' to rule R where
 
-    R': rest(cjts,-1) => Y=1
-    R: cjts => Y=1
+    R': rest(cjts,-1) ⇒ Y=1
+    R: cjts ⇒ Y=1
 and rest(cjts,-1) is the list of conjuncts in cjts except the last one.
    [wxMaxima: comment end   ] */
 
@@ -263,8 +265,8 @@ block(
 /* [wxMaxima: comment start ]
 It returns a pair consisting of the FOIL prunes for the rules
 
-    R: cjts => Y=1 
-    R': rest(cjts,-1) => Y=1 
+    R: cjts ⇒ Y=1 
+    R': rest(cjts,-1) ⇒ Y=1 
    [wxMaxima: comment end   ] */
 
 

@@ -1,0 +1,375 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: title   start ]
+Frequent-Pattern Analysis
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search_maxima:push(sconcat("C:/Users/Usuario/Downloads/datamining-main/","$$$.{mac,mc,wxm}"),file_search_maxima)$
+load(datamining)$
+load(descriptive)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+simplify(ex) :=fullratsimp(ex)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Apriori algorithm
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Transactional data
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+A transactional data set is a list of transactions in the form of subsets of items purchased. all_items(data) returns the list of all items in a transactional data set data.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ]
+    ],
+    all_items(data)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Frequent itemsets
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+The support count of an item set (a set of items) is the number of transactions that contain all items in the item set:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+support_count('data, 'A);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+where χ(p) is the indicator function of the predicate p, and subsetp(A, T) returns true iff A is a subset of T:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+chi('p);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+support_counts(data, C) returns the list of [A,c] where A is an itemset in C, and c is the support count.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        C
+    ],
+    C: makelist({i},i,all_items(data)),
+    support_counts(data, C)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+frequent_itemsets(C, min_sup) filters the list of [A,c] to remove itemsets A with count c strictly below min_sup.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        min_sup:2,
+        C
+    ],
+    C: support_counts(data, makelist({i},i,all_items(data))),
+    frequent_itemsets(C, min_sup)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Frequent 1-itemsets
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+apriori1(data, min_sup) implements the apriori algorithm to generate the frequent 1-itemsets of data with support counts at least min_sup.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        min_sup:2
+    ],
+    apriori1(data, min_sup)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Frequent k-itemsets
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Given a transactional data set data and a list L of frequent (k-1)-itemsets with k>1, apriorik(data, L, min_sup) generates the list of [A,c] where A is a frequent k-itemset of data with support count c at least min_sup.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        min_sup:2,
+        L_1
+    ],
+    L_1: apriori1(data, min_sup),
+    L_2: apriorik(data, L_1, min_sup),
+    L_3: apriorik(data, L_2, min_sup),
+    map(lambda([k, L], build_data_from_list([sconcat(k,"-itemset"), "count"], L)), [2, 3], [L_2, L_3])
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+apriori(data, min_sup) generates the list of frequent k-itemsets for k from 1 until there are no more frequent itemsets.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        min_sup:2,
+        L
+    ],
+    L:apriori(data, min_sup),
+    makelist(build_data_from_list([sconcat(length(Lk[1][1]),"-itemset"), "count"], Lk), Lk, L)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Join and prune steps
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+apriori_join and apriori_prune implement the join and prune steps, respectively:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        min_sup:2,
+        L_1
+    ],
+    L_1: apriori1(data, min_sup),
+    L_2: apriorik(data, L_1, min_sup),
+    C:apriori_join(data, L_2),
+    [C, apriori_prune(data, C, setify(map(first,L_2)))]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Association rule mining
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Association rules
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+An association rule can be created as follows:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        R:ar('A,'B)
+    ],
+    build_data_from_list(
+        ["rule", "antecedent", "consequence"],
+        [[R, ar_A(R), ar_B(R)]]
+    )
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+ar(A,B) creates an association rule (A ⇒ B).
+ar_A(R) returns the itemset associated with the antecedent of R.
+ar_B(R) returns the itemset associated with the consequence of R.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Rule qualities
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+The following computes various qualities of an association rule from transaction data:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        min_sup:2,
+        R: ar({1,2},{3})
+    ],
+    [coverage(data, R), support(data, R), confidence(data, R), prior(data, R), lift(data, R)] 
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Support-confidence framework
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Association rules can be generated using the support-confidence framework as follows:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        data: [
+            {    3,2,1},
+            {    3,2,1},
+            {  4,  2,1},
+            {  4,  2,1},
+            {5,  3,  1}
+        ],
+        c:6/10, s:4/10
+    ],
+    lst:support_confidence_framework(data, s, c),
+    build_data_from_list(
+        ["rule", "coverage", "support", "confidence", "prior", "lift"],
+        sort(
+            lst, 
+            lambda([a,b], a[4]>b[4] or (a[4]=b[4] and a[6]>b[6])) /* descending order in (confidence, lift) */
+        )
+    )
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Data cube computation
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Bottom-up construction
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+BUC(data, dims, fact, min_val) implements the bottom-up construction of the iceberg cube where
+
+    data is the base cuboid,
+    dims is the names of the dimensions,
+    fact is the name of the fact, and
+    min_val being the minimum value of fact required by the iceberg condition.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['A, 'B, 'C, "fact"],
+        lst: [
+            ['a_2, 'b_2, 'c_2, 1],
+            ['a_1, 'b_2, 'c_1, 1],
+            ['a_2, 'b_2, 'c_1, 1],
+            ['a_1, 'b_1, 'c_1, 1]
+        ],
+        dims, fact, data
+    ],
+    dims: rest(fns,-1),
+    fact: last(fns),
+    data: build_data_from_list(fns, lst),
+    BUC(data, dims, fact, 2)
+);
+/* [wxMaxima: input   end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$

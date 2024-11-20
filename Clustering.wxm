@@ -7,16 +7,13 @@ Clustering
 
 /* [wxMaxima: input   start ] */
 file_search_maxima:push(sconcat("C:/Users/Usuario/Downloads/datamining-main/","$$$.{mac,mc,wxm}"),file_search_maxima)$
-/* [wxMaxima: input   end   ] */
-
-
-/* [wxMaxima: input   start ] */
 load(datamining)$
+load(descriptive)$
 /* [wxMaxima: input   end   ] */
 
 
 /* [wxMaxima: input   start ] */
-load(descriptive)$
+simplify(ex) :=fullratsimp(ex)$
 /* [wxMaxima: input   end   ] */
 
 

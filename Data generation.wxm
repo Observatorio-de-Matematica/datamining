@@ -1,0 +1,332 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: title   start ]
+Data Generation
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: section start ]
+Introduction
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+This notebook demonstrates the data mining package written in Maxima, which is helpful for
+
+    computing some mathematical criteria precisely without numerical error/instability, and
+    creating randomized moodle stack questions.
+
+The implementations are simplified and may not be scalable to large data sets.
+
+To load the package, run the following cell:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search_maxima:push(sconcat("C:/Users/Usuario/Downloads/datamining-main/","$$$.{mac,mc,wxm}"),file_search_maxima)$
+load(datamining)$
+load(descriptive)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+simplify(ex) :=fullratsimp(ex)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+To learn Maxima, you may use the describe function or refer to the documentation for more details:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+As an example, the following defines a function that computes the maxima of its arguments:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+maxima([lst]):=
+if length(lst)>1 
+/* recur on tail maxima (tm) */
+then block(
+    [tm :apply('maxima,rest(lst))],
+    if lst[1]>=tm[2] 
+    then maxima(lst[1]) 
+    else [tm[1]+1,tm[2]]
+)
+/* base cases */
+else if length(lst)>0 
+then [1, lst[1]]
+else [0, -inf]$
+
+maxima(1,2,3,2,1);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above example, maxima([lst]) is a recursive function that
+
+    takes a variable number of arguments, which will be stored in lst as a list, and
+    returns a list [i,m] as follows:
+        If lst is non-empty, lst[i]=m is a maximum element of lst and i is the smallest such index.
+        If lst is empty, then [0,-inf] is returned, following the conventions that
+            the maximum element of an empty list [] of numbers is -inf, and
+            Maxima uses 1-based numbering so 0 is the index of an imaginary item before the first item in a list.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+    Comments can be delimited by /* and */ as in /* base cases */.
+
+    Trailing ; ends an expression and prints its value. E.g.,
+
+    maxima(1,2,3,2,1);
+    applies call the maxima function display its output.
+
+    Trailing $ ends an expression without printing its value. E.g.,
+
+    maxima([lst]):=
+    ...
+    else [0, -inf]$
+    defines a function without displaying it in the output cell.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Generate data from lists
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Data is a matrix of feature values associated with feature names. Data can be created by build_data_from_list(fns, lst) where
+
+    fns is a list of feature names, and
+    lst is a list of instances, which are lists of feature values corresponding to the feature names.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+set_draw_defaults(file_name="images/maxplot.svg", terminal=svg, point_type=square, point_size=2)$
+
+block(
+    [
+        fns: ['i, 'X_1, 'X_2, 'Y],           /* feature names */
+        lst: [[1, 0, 0, 0], [2, 1, 1, 1]],   /* instances */
+        target: 'Y,
+        xy: ['X_1, 'X_2],
+        data
+    ],
+    data: build_data_from_list(fns, lst),
+    plot_labeled_data(data,xy,target),
+    [
+        data, 
+        feature_names(data), 
+        size(data), 
+        feature_index(fns, target), 
+        get_data(data, 1), 
+        feature_values(data, target)
+    ]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Information of the data can be obtained using other functions:
+
+    feature_names(data) returns the feature names of data.
+    size(data) returns the number of instances of data.
+    feature_index(fns, fn) returns the index of a feature named fn in the list fns of feature names.
+    get_data(data, i) returns the i-th instance of data.
+    feature_values(data, fn) returns the list of feature values of the feature fn.
+    plot_labeled_data(data,xy,target)
+    
+    plot_labeled_data(data,xy,target)
+
+plots the labeled data where
+
+    xy specifies the pair of features for the x and y axes, and
+    target is used to color code the data points.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+set_draw_defaults(file_name="images/maxplot.svg", terminal=svg, point_type=square, point_size=2)$
+configures the format of the plot.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Generate data with rules
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Data can also be generated (randomly) according to some specified rules using build_data(fns, gen, n) where
+
+    fns is a list of feature names,
+    gen is a function that takes a unique index and generates an instance associated with the index, and
+    n is the number of instances to generate.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['i, 'X_1, 'X_2, 'Y],
+        gen: lambda([i],
+            [
+                i,
+                random(3),
+                random(3),
+                if 'X_1<1 and 'X_2>0 then 1 else 0
+            ]),
+        n: 10
+    ],
+    build_data(fns, gen, n)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above example,
+
+    i is the unique index,
+    X_1 and X_2 are uniformly random generated from {0,1,2}, and
+    Y is a deterministic function of X_1 and X_2, namely,
+        
+        Y= 1 if X_1 <1, X_2 > 0; 0 otherwise.
+ 
+The value of a feature
+
+    can depend on the index and the values of all the previously generated features of the same instance, but
+    cannot depend on the feature values of other instances.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Transform features
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+New features can be created by transforming existing ones using transform_features(data, nfns, ngen) where
+
+    data is a data set,
+    nfns is the list of new feature names, and
+    ngen is a function that takes a unique index and returns an instance.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        gen: lambda([i], 
+            [
+                random(3), 
+                random(3)
+            ]),
+        n: 10,
+        nfns: ['i, 'X_1, 'X_2, 'Y],
+        ngen: lambda([i],
+            [
+                i,
+                'X_1,
+                'X_2,
+               if 'X_1<1 and 'X_2>0 then 1 else 0 
+            ]
+        ),
+        data
+    ],
+    data: build_data(fns, gen, n),
+    [data, transform_features(data, nfns, ngen)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above example,
+
+    the features X_1 and X_2 in data are transformed to create the feature Y, and
+    the row index is used to create the feature i.
+
+A new feature
+
+    can depend on the index, all previously generated features and the features in data of the same instance, but
+    cannot depend on the feature values of other instances.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Subsample data
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+To subsample data based on specific conditions, use subsample_data(data, cond) where
+
+    data is the data to subsample, and
+    cond is a function that takes a row index and returns a boolean expression on the feature names.
+
+It returns data but keeping only the instances indexed by i where cond[i] evaluates to true with the feature names substituted by the corresponding feature values.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        gen: lambda([i],
+            [
+                random(3),
+                random(3)
+            ]),
+        n: 10,
+        cond: lambda([i],
+            'X_1<1 and 'X_2>0
+        ),
+        data
+    ],
+    data: build_data(fns, gen, n),
+    [data, subsample_data(data, cond)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above example, only instances with X_1<1 and X_2>0 are returned.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Combine data
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Data can be stacked (vertically) by stack_data(data_1, data_2, ...) where data_i's are data with the same list of features.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['i, 'X_1, 'X_2]
+    ],
+    data_1: build_data(fns, lambda([i], [i, random(2), random(2)]),4),
+    data_2: build_data(fns, lambda([i], [i, 3+random(2), random(2)]),4),
+    data: transform_features(stack_data(data_1, data_2), fns, lambda([i], [i, 'X_1, 'X_2])),
+    [data_1, data_2, data]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above example, data consists of instances from data_1 and data_2.
+The index column is regenerated using transform_features for data so that every instance has a unique index.
+   [wxMaxima: comment end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$
