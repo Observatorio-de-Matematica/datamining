@@ -1,0 +1,273 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: title   start ]
+Classification
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search_maxima:push(sconcat("C:/Users/Usuario/Downloads/datamining-main/","$$$.{mac,mc,wxm}"),file_search_maxima)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(datamining)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Decision tree induction
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Distribution
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+empirical(lst) computes the empirical distribution of the list lst.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [lst:[2,2,1,3,3,3]],
+    empirical(lst)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+A pair is returned, where
+
+    the first element is the list of unique values sorted in ascending order, and
+    the second element is their fractional number of occurences.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Information gain
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+An impurity measure for decision tree induction is entropy computed as entropy(ps) for some distribution ps as a list of probability masses:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+entropy(ps);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+The information gain ratios and related information quantities can be computed as follows:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['i, 'X_1, 'X_2, 'Y],
+        n: 6,
+        gen: lambda([i], [i, random(2), random(2), random(2)]),
+        conds: ['X_1, 'X_2],
+        target: 'Y,
+        data, info
+    ],
+    data: build_data(fns, gen, n),
+    [
+        data,
+        Info(data, target),
+        build_data_from_list(
+            ['X, 'Info[X], 'Gain[X], 'SplitInfo[X], 'GainRatio[X]],
+            makelist(
+                map('simplify,
+                    [X,
+                     InfoX(data, target, X), 
+                     Gain(data, target, X), 
+                     SplitInfo(data, X), 
+                     GainRatio(data, target, X)]
+                ), 
+                X, conds
+            )
+        )
+    ]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+where
+
+    Info(data, target) computes the information content (entropy) of target in data.
+    InfoX(data, target, X) computes the information (conditional entropy) given X.
+    Gain(data, target, X) calculates the information gain of target with X.
+    SplitInfo(data, X) calculates the split information (entropy) of X.
+    GainRatio(data, target, X) calculates the information gain ratio of target with X.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Gini impurity
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Another impurity measure is the Gini impurity, which is computed as gini(ps):
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+gini(ps);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+The quantity related to the Gini impurity can be computed as follows:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['i, 'X_1, 'X_2, 'Y],
+        n: 6,
+        gen: lambda([i], [i, random(2), random(2), random(2)]),
+        conds: ['X_1, 'X_2, chi('X_1<=0.5), chi('X_2>0.5)],
+        target: 'Y,
+        data
+    ],
+    data: build_data(fns, gen, n),
+    [
+        data, Gini(data, target),
+        build_data_from_list(
+            ['X, 'Gini[X], 'GiniDrop[X]],
+            makelist(
+                [X, GiniX(data, target, X), GiniDrop(data, target, X)],
+                X, conds
+            )
+        )
+    ]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+where
+
+    Gini(data, target) computes the Gini impurity of target in data.
+    GiniX(data, target, X) computes the conditional Gini impurity of target conditioned on X.
+    GiniDrop(data, target, X) computes the drop in Gini impurity for a splitting criterion X.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Rule-based classifier
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+FOIL gain
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+The following formula computes the FOIL gain
+
+    from a rule covering p_0 positives and n_0 negatives
+    to a rule covering p_1 positives and n_1 negatives.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+foilgain(p_0,n_0,p_1,n_1);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+To compute FOIL gain from data:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['i, 'X_1, 'X_2, 'Y],
+        n: 6,
+        gen: lambda([i], [i, random(2), random(2), random(2)]),
+        cjts: ['X_1=1, 'X_2=1],
+        target: 'Y
+    ],
+    R: [ar(rest(cjts, -1),target=1), ar(cjts,target=1)],
+    data: build_data(fns, gen, n),
+    [data, 
+    build_data_from_list(
+        ["Original rule", "New rule", 'FOILGain],
+        [[R[1], R[2], FOILGain(data, target, cjts)]])]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+FOILGain(data, target, cjts) returns the FOIL gain from rule R' to rule R where
+
+    R': rest(cjts,-1) => Y=1
+    R: cjts => Y=1
+and rest(cjts,-1) is the list of conjuncts in cjts except the last one.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+FOIL prune
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+FOIL prune can be computed from the number p of positives and the number n of negatives covered by a rule.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+foilprune(p,n);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+To compute FOIL prune from data:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['i, 'X_1, 'X_2, 'Y],
+        n: 6,
+        gen: lambda([i], [i, random(2), random(2), random(2)]),
+        cjts: ['X_1=1, 'X_2=1],
+        target: 'Y,
+        data
+    ],
+    R: [ar(cjts,target=1), ar(rest(cjts, -1),target=1)],
+    data: build_data(fns, gen, n),
+    FP: FOILPrune(data, target, cjts),
+    [data, 
+    build_data_from_list(
+        ["Rule", 'FOILPrune],
+        makelist([R[i], FP[i]], i, [1,2]))]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+It returns a pair consisting of the FOIL prunes for the rules
+
+    R: cjts => Y=1 
+    R': rest(cjts,-1) => Y=1 
+   [wxMaxima: comment end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$

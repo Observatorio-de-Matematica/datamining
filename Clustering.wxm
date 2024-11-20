@@ -1,0 +1,572 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: title   start ]
+Clustering
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search_maxima:push(sconcat("C:/Users/Usuario/Downloads/datamining-main/","$$$.{mac,mc,wxm}"),file_search_maxima)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(datamining)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(descriptive)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Centroid-based methods
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Partitional clusters
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+A cluster assignment is a list of cluster indices, where the i-th index is the cluster label of the i-th instance in a data set.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [C: [2,2,1,1]],
+    to_clusters(C)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above, to_cluster(C) converts a cluster assignment C to a pair where
+
+    the first element is the list of unique cluster indices in ascending order, and
+    the second element is the corresponding list of clusters, each of which is a list of row indices of C in ascending order associated with the cluster         index.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Compute centroids from clusters
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+The centroids can be computed for a list of clusters of data points by centroids(Cs, cfns) where
+
+    Cs is a list of data sets all with
+    the features given by the list cfns for calculating the centroids.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['i, 'X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2
+    ],
+    data_1: build_data(fns, lambda([i], [i, random(2), random(2)]),2),
+    data_2: build_data(fns, lambda([i], [i, 3+random(2), random(2)]),2),
+    cs: centroids([data_1, data_2], cfns),
+    [data_1, data_2, cs]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+The centroids are returned as a data set on cfns where the j-th instance is the centroid of the j cluster Cs[j].
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+It is okay for the data to have more features than those in cfns used for calculating the centroids.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+A data set can be split into clusters using split_data_by_clusters(data, C) where
+
+    data is the data set to split, and
+    C is the cluster assignment in the form of a list of cluster indices, one for each instance of the data.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+Centroids can also be obtained for a cluster assignment by centroids_for_clusters(data, cfns, C) where
+
+    cfns is the list of features to use for calculating the centroids.
+
+The total variation (sum of squared distances) of the data points to their cluster centers can be computed by variation(data,C,cs) where
+
+    cs is the data where the i-th instance is the center of the i cluster in data according to the cluster assignment C.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        C, data_1, data_2, data,t,ids, ps, Cs
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),2),
+    data_2: build_data(fns, lambda([i], [3+random(2), random(2)]),2),
+    data: stack_data(data_1, data_2),
+    C: [1, 1, 2, 2],
+    t:split_data_by_clusters(data, C),
+    ids: t[1][1],
+    ps: t[1][2],
+    Cs: t[2],
+    cs:centroids_for_clusters(data, cfns, C),
+    var: variation(data,C,cs),
+    [data, ids, ps, Cs, cs, var]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above example, ids is a list of unique cluster indices sorted in ascending order, corresponding to which
+
+    ps is the list of fractional cluster sizes,
+    Cs is the list of clusters, and
+    cs is the data where the j-th instance is the centroid of the j-th cluster.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Compute clusters from centroids
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Data points can be assigned to their nearest cluster centers using clusters_for_centroids(data, cs), where
+
+    data is the data set to cluster, and
+    cs is the data containing cluster centers.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2, data, C, cs
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),3),
+    data_2: build_data(fns, lambda([i], [3+random(2), random(2)]),3),
+    data: stack_data(data_1, data_2),
+    C: [1,2,2,2,1,1],
+    cs: centroids_for_clusters(data, cfns, C),
+    [data, cs, clusters_for_centroids(data, cs)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+An instance is assigned to cluster i only if the i-th cluster center in cs is the closest cluster center to the instance.
+
+    data must have all the features that cs has, but it can also contain more features.
+    The distance is calculated using only the features in cs.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Helper functions
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+The following are some helper functions used to implement the centroid-based method:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        p: matrix([0,0]),
+        q: [1,1],
+        P: matrix(
+            [0,0],
+            [0,1]
+        ),
+        Q: [[1,1],
+            [1,0]]
+    ],
+    [centroid(Q), dist(p,q), sq_dist(p,q), nearest_neighbor(p,Q), nearest_neighbors(P,Q)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+In the above example:
+
+    centroid(Q) is the centroid of the points (rows) in the cluster Q, where Q can be a matrix or a list of lists of coordinates.
+    dist(p,q) is the Euclidean distance from point p to point q, where a point can be a row vector or a list of coordinates.
+    sq_dist(p,q) is the squared distance between p and q.
+    nearest_neighbor(p,Q) is i iff the i-th point (row) in the cluster Q is the first nearest neighbor of point p.
+    nearest_neighbors(P,Q) is a list of nearest_neighbors(p,Q) where p is a point of the cluster P.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Hierarchical clustering
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Cluster distances
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+pairwise_cluster_dists(data, C, dist) returns the sorted list of pairwise cluster distances for data with clustering assignment C and the cluster distance dist. The returned list consists of elements [[i,j],d] where d is the distance of Cluster i and Cluster j.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2, data, C
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),2),
+    data_2: build_data(fns, lambda([i], [3+random(2), random(2)]),2),
+    data: stack_data(data_1, data_2),
+    C: [4,4,1,2],
+    dists: [min_dist, max_dist, centroid_dist, ward_dist],
+    [
+        data,
+        build_data_from_list(
+            ["metric", "pairwise cluster distances"],
+            map(lambda([d], [d, pairwise_cluster_dists(data, C, d)]), dists)
+        )
+    ]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+The possible cluster distances are:
+
+    min_dist(P, Q): The closest distance between rows of P and rows of Q.
+    max_dist(P, Q): The furthest distance between rows of P and rows of Q.
+    centroid_dist(P, Q): The distance between the centroid of rows of P and the centroid of row on Q.
+    ward_dist(P, Q): The total variation (squared distances) of all the rows of P and Q.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+AGNES
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Clusters can be agglomerated using agglomerate(data, C, ids) where
+
+    ids is a list of cluster indices to merge, and
+    the returned cluster assignment with have a new index lmax(C)+1 for the merged clusters.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2, data, C,  pcds
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),2),
+    data_2: build_data(fns, lambda([i], [3+random(2), random(2)]),2),
+    data: stack_data(data_1, data_2),
+    C: [4,4,1,2],
+    pcds: pairwise_cluster_dists(data, C, min_dist),
+    ids: pcds[1][1],
+    [data, C, ids, agglomerate(data, C, ids)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+An agglomerative nesting algorithm (AGNES) for clustering can be performed with agnes(data, dist, k) where k is the number of clusters to merge to, and dist is the cluster distance to minimize by merging two clusters;
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2, data
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),2),
+    data_2: build_data(fns, lambda([i], [3+random(2), random(2)]),2),
+    data: stack_data(data_1, data_2),
+    [data, agnes(data, min_dist, 2)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+agnes returns a pair where
+
+    the first element is the desired cluster assignment for k clusters, and
+    the second element is a list where the l-th element is [C, [i,j], d] where
+        C is the cluster assignment right before the l-th agglomeration,
+        i and j are the cluster indices to be merged to a new cluster, which will have index lmax(C)+1, and
+        d is the distance of Cluster i and j calculated using dist.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Density-based methods
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+The core distances of points in a data set data can be computed by core_dists(data, MinPts, eps) where MinPts and eps are the usual parameters for OPTICS/DBSCAN.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2, data,
+        MinPts: 3,
+        eps: 3,
+        cdm
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),2),
+    data_2: build_data(fns, lambda([i], [3+random(2), random(2)]),2),
+    data: stack_data(data_1, data_2),
+    cdm: core_dists(data, MinPts, eps),
+    [data, cdm, feature_values(cdm, "core_dist"), feature_values(cdm, 'd[1])]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+The core distances and other related quantities are returned as a data set where the i-th instance consists of the following for the i-th instance in data:
+
+    "core_dist": The core distance, which is inf by convention if there are fewer than MinPts data points within the eps-neighborhood.
+    "neighbors": The list of indices corresponding to points in the eps-neighborhood.
+    'd[j]: The distance to the j-th instance.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+DBSCAN
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+dbscan(data, MinPts, eps) applies DBSCAN to cluster points in data where a core point has at least MinPts data points in its eps-neighborhood:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2, data,
+        MinPts: 3,
+        eps: 1,
+        cdm
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),3),
+    data_2: build_data(fns, lambda([i], [5+random(2), random(2)]),3),
+    data: stack_data(data_1, data_2),
+    cdm: core_dists(data, MinPts, eps),
+    [data, cdm, dbscan(data, MinPts, eps)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+dbscan returns a list consisting of
+
+    the set of clusters (sets of indices),
+    the set of noise points,
+    the set of core points, and
+    the set of border points.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+OPTICS
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+optics(data, MinPts, eps) applies OPTICS to clusters points in data where a core point has at least MinPts data points in its eps-neighborhood:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        data_1, data_2, data,
+        MinPts: 3,
+        eps: 1,
+        cdm
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),3),
+    data_2: build_data(fns, lambda([i], [5+random(2), random(2)]),3),
+    data: stack_data(data_1, data_2),
+    cdm: core_dists(data, MinPts, eps),
+    [data, cdm, optics(data, MinPts, eps)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+optics returns a pair consisting of
+
+    the data containing
+        a column of reachability distances, and
+        a column containing the corresponding list of nodes reached, and
+    the set of noise points.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Evaluation metrics
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Pairwise correctness
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+pairwise_correctness(C, L) takes
+
+    the cluster assignment C and
+    the ground truth categorization L,
+
+and it returns a pair where
+
+    the first element is the pairwise correctness matrix, and
+    the second element is the accuracy measured in terms of the average correctness.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        L: [1,1,2,2,3,3],
+        C: [1,1,1,2,2,2]
+    ],
+    pairwise_correctness(C, L)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+B-Cubed precision and recall
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+B-Cubed precision and recall can be computed using BCubed(C, L) for the cluster assignment C and categorization L:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        L: [1,1,2,2,3,3],
+        C: [1,1,1,2,2,2]
+    ],
+    BCubed(C, L)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+    The first element of the returned list is a list [precision, recall] of the overall precision and recall.
+    The second element contains more detailed statistics per node. E.g., for the i-th instance, the column TPj contains the list of index j
+    such that (i,j) is a true positive, while the feature TP is the total count of such index j. The remaining columns give the precision and recall for          each instance.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Classes-to-clusters evaluation
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+classes_to_clusters_eval(L, C) carry the classes-to-clusters evaluation on the categorization L and cluster assignment C. The returned list consists of
+
+    the accuracy maximized over the classes-to-clusters assignment,
+    the assignment in the form of a list of [l,c] where l is a class index and c is a cluster index, and
+    the list consisting of
+        the list l of unique class labels in ascending order,
+        the list c of unique cluster labels in ascending order, and
+        the list lst of list of counts where lst[i][j] is the counts of instances associated with class index l[i] and cluster index c[j].
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        C: [1,1,2,2,3,3],
+        L: [1,1,1,2,2,2]
+    ],
+    classes_to_clusters_eval(L, C)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Silhouette analysis
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Silhouette coefficients can be computed by silhouette(data, C) for the data set data with cluster assignment C as follows:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+block(
+    [
+        fns: ['X_1, 'X_2],
+        cfns: ['X_1, 'X_2],
+        data_1, data_2, data,
+        C
+    ],
+    data_1: build_data(fns, lambda([i], [random(2), random(2)]),2),
+    data_2: build_data(fns, lambda([i], [3+random(2), random(2)]),2),
+    data: stack_data(data_1, data_2),
+    C: [2,2,1,1],
+    [data, silhouette(data, C)]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+silhouette(data, C) returns data with columns:
+
+    'a: mean intra-cluster distance.
+    'b: mean nearest-cluster distance.
+    "nearest": index of the nearest cluster.
+    's: silhouette coefficient.
+   [wxMaxima: comment end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$
